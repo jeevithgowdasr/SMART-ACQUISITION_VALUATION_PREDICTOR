@@ -1,7 +1,10 @@
 import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+
 import joblib
 import pandas as pd
 import sys
@@ -286,3 +289,23 @@ def get_acquisition_targets(acquirer_name: str):
     except Exception as e:
         logger.error(f"Error finding acquisition targets: {e}")
         return {"error": f"Error finding acquisition targets: {e}"}
+
+
+# Serve static files from the 'dist' directory if it exists
+if os.path.exists("dist"):
+    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    # If the path matches a file in dist (like favicon.ico), serve it
+    dist_path = os.path.join("dist", full_path)
+    if os.path.isfile(dist_path):
+        return FileResponse(dist_path)
+    
+    # For all other routes, serve index.html (SPA support)
+    index_path = os.path.join("dist", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return {"message": "Smart Acquirer API is running. Build frontend to see the UI."}
+

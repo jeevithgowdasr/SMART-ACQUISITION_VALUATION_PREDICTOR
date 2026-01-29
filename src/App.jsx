@@ -7,7 +7,8 @@ import AgentDashboard from './components/AgentDashboard';
 import { FundingAgentResults, TeamAgentResults, SynergyAgentResults, ValuationAgentResults, RiskAgentResults, DecisionAgentResults, BenchmarkAgentResults } from './components/AgentResults';
 import './App.css';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.DEV ? '/api' : '';
+
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
